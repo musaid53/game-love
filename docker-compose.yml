@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+
+  game-love:
+    image: game-love:latest
+    container_name: game-love
+    restart: always
+    environment:
+      SECURITY_ENABLED: 'false'
+    ports:
+      - "8080:8080"
