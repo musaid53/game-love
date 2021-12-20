@@ -41,12 +41,12 @@ or just use with defaults
 > **_NOTE:_** you must package with -Ddocker.skip=false for running docker image (it builds image)
 > and also dont skip tests (build must be after tests)
 
-Runnig the docker image
+Runnig the docker image (to disable security add "-e SECURITY_ENABLED=false" as docker environment )
 
 ```shell script
 docker run -i --rm -p 8080:8080 --name game-love game-love
 ```
-Or use compose:
+Or use compose (to disable security change compose file):
 ```shell script
 docker compose up
 ```
