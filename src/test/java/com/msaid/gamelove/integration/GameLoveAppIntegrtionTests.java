@@ -1,4 +1,4 @@
-package com.msaid.gamelove;
+package com.msaid.gamelove.integration;
 
 import com.msaid.gamelove.controller.AuthController;
 import com.msaid.gamelove.dto.UserRequestDto;
@@ -9,8 +9,9 @@ import com.msaid.gamelove.persistence.repository.GameRepository;
 import com.msaid.gamelove.persistence.repository.UserGameLoveRepository;
 import com.msaid.gamelove.persistence.repository.UserRepository;
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
@@ -23,12 +24,15 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @AutoConfigureWebTestClient
-public class GameControllerTests {
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+public class GameLoveAppIntegrtionTests {
     private String token;
 
     @Autowired
@@ -42,7 +46,7 @@ public class GameControllerTests {
     @Autowired
     AuthController authController;
 
-    @BeforeEach
+    @BeforeAll
     void setUp() throws ExecutionException, InterruptedException {
 //        client = WebTestClient.bindToServer().baseUrl("http://localhost:8080").build();
 //         client = MockMvcWebTestClient.bindToController(new GameController(gameService, gameLoveTrackService)).build();
@@ -50,10 +54,11 @@ public class GameControllerTests {
                         .username("admin").password("admin")
                         .build()).thenApply(loginResponseResponseEntity -> loginResponseResponseEntity.getBody().getAccessToken())
                 .get();
+        initDefaultDataForGameLoveTrack();
     }
 
     @Test
-    public void create_and_get_game_test() throws ExecutionException, InterruptedException {
+    public void createAndGetGame() throws ExecutionException, InterruptedException {
         final String gameName = "Mario";
 
         client.put().uri("/game/create")
@@ -82,8 +87,37 @@ public class GameControllerTests {
     }
 
     @Test
-    public void get_most_loved_games(){
-        //todo
+    public void getMostLovedGamesTest(){
+        client.get().uri("/game/most-loved-games?top=2")
+                .header("Authorization", token)
+                .exchange()
+                .expectStatus().isOk().expectBody().jsonPath("$.content").value(o -> {
+                    List<Map> gameStats = (List<Map>) o;
+                    Assertions.assertThat(gameStats.get(0).get("loveCount")).isEqualTo(Integer.valueOf(3));
+                    Assertions.assertThat(gameStats.get(0).get("gameName")).isEqualTo("Mario1");
+                    Assertions.assertThat(gameStats.get(1).get("loveCount")).isEqualTo(Integer.valueOf(2));
+                    Assertions.assertThat(gameStats.get(1).get("gameName")).isEqualTo("Mario2");
+                });
+    }
+
+    @Test
+    void getLovedGameByUserId(){
+
+        client.get().uri("/user/loved-games/{userName}", "user1")
+                .header("Authorization", token)
+                .exchange()
+                .expectStatus().isOk().expectBody().jsonPath("$.content").value(o -> {
+                    List<Map> games = (List<Map>) o;
+                    Assertions.assertThat(games.size()).isEqualTo(2);
+                    Set<String> gameSet = games.stream().map(map -> map.get("gameName").toString())
+                            .collect(Collectors.toSet());
+                    Assertions.assertThat(gameSet).contains("Mario2")
+                            .contains("Mario1")
+                            .doesNotContain("Mario3");
+                });
+
+    }
+    private void initDefaultDataForGameLoveTrack(){
         List<GameEntity> games = List.of(
                 GameEntity.builder().gameName("Mario1").build(),
                 GameEntity.builder().gameName("Mario2").build(),
@@ -106,16 +140,6 @@ public class GameControllerTests {
 
         );
         userGameLoveRepository.saveAll(gameLoves);
-        client.get().uri("/game/most-loved-games?top=2")
-                .header("Authorization", token)
-                .exchange()
-                .expectStatus().isOk().expectBody().jsonPath("$.content").value(o -> {
-                    List<Map> gameStats = (List<Map>) o;
-                    Assertions.assertThat(gameStats.get(0).get("loveCount")).isEqualTo(Integer.valueOf(3));
-                    Assertions.assertThat(gameStats.get(0).get("gameName")).isEqualTo(games.get(0).getGameName());
-                    Assertions.assertThat(gameStats.get(1).get("loveCount")).isEqualTo(Integer.valueOf(2));
-                    Assertions.assertThat(gameStats.get(1).get("gameName")).isEqualTo(games.get(1).getGameName());
-                });
     }
 
 }

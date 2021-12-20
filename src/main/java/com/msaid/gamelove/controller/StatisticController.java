@@ -3,6 +3,7 @@ package com.msaid.gamelove.controller;
 import com.msaid.gamelove.dto.GameLoveTrackRequest;
 import com.msaid.gamelove.dto.GameLoveTrackResp;
 import com.msaid.gamelove.service.GameLoveTrackService;
+import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +27,7 @@ public class StatisticController {
     //    The player that loved the game.
     //    The game it loved.
     @PostMapping("/track")
+    @ApiOperation("Add a tracking of user loves/doesnt-loves a game")
     public CompletableFuture<ResponseEntity<GameLoveTrackResp>> track(@RequestBody @Valid GameLoveTrackRequest request){
         return gameLoveTrackService.trackStatistic(request)
                 .thenApply(ResponseEntity::ok);

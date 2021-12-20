@@ -63,8 +63,7 @@ public class GameLoveTrackService {
                             .game(gameEntity)
                             .love(love)
                             .build();
-                    newTrack = userGameLoveRepository.save(newTrack);
-                    return newTrack;
+                    return userGameLoveRepository.save(newTrack);
                 });
     }
 

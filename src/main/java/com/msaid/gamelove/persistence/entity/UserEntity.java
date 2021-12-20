@@ -38,8 +38,7 @@ public class UserEntity extends BaseEntity {
     private String password;
 
     @OneToMany(mappedBy = "user", targetEntity = RoleEntity.class,
-            cascade = CascadeType.ALL,
-            orphanRemoval = true)
+            cascade = CascadeType.ALL)
     private Set<RoleEntity> roles = new HashSet<>();
 
 

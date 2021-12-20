@@ -2,6 +2,7 @@ package com.msaid.gamelove.controller;
 
 import com.msaid.gamelove.persistence.entity.GameEntity;
 import com.msaid.gamelove.service.GameLoveTrackService;
+import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
@@ -22,6 +23,7 @@ public class UserController {
 
 
     @GetMapping("/loved-games-by-id/{userId}")
+    @ApiOperation("Get a users loved games by userId")
     public CompletableFuture<ResponseEntity<Page<GameEntity>>> getAllGamesPlayerLoved (@PathVariable("userId") Long userId,
                                                                                        @RequestParam(value = "page", required = false, defaultValue = "0")
                                                                                        @Min(value = 0, message = "ming page must be 0") Integer page){
@@ -30,6 +32,7 @@ public class UserController {
     }
 
     @GetMapping("/loved-games/{userName}")
+    @ApiOperation("Get a users loved games by userName")
     public CompletableFuture<ResponseEntity<Page<GameEntity>>> getAllGamesPlayerLoved (@PathVariable("userName") String userName,
                                                                                        @RequestParam(value = "page", required = false, defaultValue = "0")
                                                                                        @Min(value = 0, message = "ming page must be 0") Integer page){

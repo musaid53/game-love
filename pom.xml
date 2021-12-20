@@ -16,6 +16,7 @@
     <properties>
         <java.version>11</java.version>
         <jjwt.version>0.11.2</jjwt.version>
+        <docker.skip>true</docker.skip>
     </properties>
     <developers>
         <developer>
@@ -132,6 +133,7 @@
                 <extensions>true</extensions>
                 <configuration>
                     <verbose>true</verbose>
+                    <skip>${docker.skip}</skip>
                     <images>
                         <image>
                             <name>${project.artifactId}:latest</name>
